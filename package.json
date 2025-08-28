@@ -1,0 +1,32 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "ngrok": "ngrok http 3000",
+    "ngrok:start": "node start-ngrok.js",
+    "dev:ngrok": "concurrently \"npm run dev\" \"npm run ngrok\"",
+    "dev:ngrok:start": "concurrently \"npm run dev\" \"npm run ngrok:start\""
+  },
+  "author": "sushant",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cloudinary": "^1.41.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.1.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.17.0",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.32.6"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2"
+  }
+}

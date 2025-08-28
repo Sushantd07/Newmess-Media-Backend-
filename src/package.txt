@@ -1,0 +1,12 @@
+npm i express mongoose dotenv
+npm i cookie-parser cors
+
+1. DB always in Other continent- Use try and catch 
+
+;()()  -> ife (always use semicolumn)
+
+
+-------------------------------------------------------------------------
+
+
+
