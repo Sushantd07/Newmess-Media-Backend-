@@ -45,12 +45,20 @@ import './models/ContactNumbers.js';
     "https://127.0.0.1:5173",
     "https://127.0.0.1:5174",
     "https://gzd2rl1g-5173.inc1.devtunnels.ms",
-    "https://ca0ad85c14cc.ngrok-free.app"
+    "https://ca0ad85c14cc.ngrok-free.app",
+    // Production frontend domains
+    "https://indiacustomerhelp.com",
+    "https://www.indiacustomerhelp.com"
   ];
 
   // Add ngrok domains to allowed origins
   if (process.env.NGROK_URL) {
     allowedOrigins.push(process.env.NGROK_URL);
+  }
+
+  // Include FRONTEND_ORIGIN from env if provided
+  if (process.env.FRONTEND_ORIGIN) {
+    allowedOrigins.push(process.env.FRONTEND_ORIGIN);
   }
 
   // Allow all ngrok.io domains
@@ -62,7 +70,8 @@ import './models/ContactNumbers.js';
       // Allow localhost and ngrok domains
       if (allowedOrigins.includes(origin) || 
           origin.includes('ngrok.io') || 
-          origin.includes('ngrok-free.app')) {
+          origin.includes('ngrok-free.app') ||
+          origin.includes('indiacustomerhelp.com')) {
         return callback(null, true);
       }
       
