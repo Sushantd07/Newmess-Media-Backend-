@@ -132,6 +132,48 @@ import './models/ContactNumbers.js';
   // Alias route under /tabs for non-coder friendly admin operations
   app.use('/tabs', contactNumbersRoutes);
 
+  // ✅ Dynamic Sitemap.xml
+  app.get('/sitemap.xml', async (req, res) => {
+    try {
+      // Lazy-import models to avoid circular deps on startup
+      const { default: Category } = await import('./models/Category.js');
+      const { default: CompanyPage } = await import('./models/CompanyPage.js');
+
+      const siteUrl = process.env.SITE_URL || 'https://indiacustomerhelp.com';
+
+      const [categories, companies] = await Promise.all([
+        Category.find({ isActive: true }).select('slug updatedAt').lean(),
+        CompanyPage.find({}).select('categoryId slug updatedAt').lean()
+      ]);
+
+      const urls = [];
+      // Static core routes
+      urls.push({ loc: `${siteUrl}/`, priority: '1.0' });
+      urls.push({ loc: `${siteUrl}/category`, priority: '0.9' });
+
+      // Category listing pages
+      for (const c of categories) {
+        urls.push({ loc: `${siteUrl}/category/${encodeURIComponent(c.slug)}`, lastmod: c.updatedAt, priority: '0.8' });
+      }
+
+      // Company pages under category/:categoryId/:companySlug
+      for (const cp of companies) {
+        if (!cp.categoryId || !cp.slug) continue;
+        urls.push({ loc: `${siteUrl}/category/${encodeURIComponent(cp.categoryId)}/${encodeURIComponent(cp.slug)}`, lastmod: cp.updatedAt, priority: '0.7' });
+      }
+
+      const toISO = (d) => (d ? new Date(d).toISOString() : undefined);
+      const xmlItems = urls.map(u => `  <url>\n    <loc>${u.loc}</loc>${u.lastmod ? `\n    <lastmod>${toISO(u.lastmod)}</lastmod>` : ''}${u.priority ? `\n    <priority>${u.priority}</priority>` : ''}\n  </url>`).join('\n');
+
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${xmlItems}\n</urlset>`;
+      res.setHeader('Content-Type', 'application/xml; charset=UTF-8');
+      res.send(xml);
+    } catch (err) {
+      console.error('Failed to generate sitemap.xml:', err);
+      res.status(500).type('text/plain').send('Failed to generate sitemap');
+    }
+  });
+
   // ✅ Error handling middleware
   app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
